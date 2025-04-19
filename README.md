@@ -5,10 +5,10 @@ Right now to run it, you would need to do `git clone <sandboxels repositories gi
 ## All better alcohol recepies:
 
 ### Whiskey:
-***Grain*** &rarr ***smashed grain*** (Smash)
-***Smashed grain*** + ***Hot Water*** &rarr ***Mash*** (Mix the element, in liquids)
-***Mash*** + ***Alcohol*** &rarr ***Wash*** (Mix)
-***Wash*** &rarr ***Whiskey Gas*** (Heat it up)
-***Whiskey Gas*** &rarr ***Whiskey*** (Cool it down)
+***Grain*** → ***smashed grain*** (Smash)
+***Smashed grain*** + ***Hot Water*** → ***Mash*** (Mix the element, in liquids)
+***Mash*** + ***Alcohol*** → ***Wash*** (Mix)
+***Wash*** → ***Whiskey Gas*** (Heat it up)
+***Whiskey Gas*** → ***Whiskey*** (Cool it down)
 
 ### Wine:
