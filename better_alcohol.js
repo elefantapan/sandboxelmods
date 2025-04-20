@@ -126,7 +126,7 @@ elements.mashed_potato = {
       elem1: "coldPotato",
       elem2: "coldPotato",
       tempMin: 0,
-      tempMax: 20,
+      tempMax: 30,
     },
   },
   color: ["#F7F6E4", "#F0ECD4", "#E4D38B"],
@@ -227,7 +227,7 @@ elements.must = {
   behavior: behaviors.LIQUID,
   category: "liquids",
   reactions: {
-    alcohol: {
+    yeast: {
       elem1: "baseWine",
       elem2: "baseWine",
       chance: 0.5,
