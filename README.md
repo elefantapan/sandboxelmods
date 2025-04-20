@@ -27,15 +27,16 @@ Right now to run it, you would need to do `git clone <sandboxels repositories gi
 ***Sugary Cuvee***  
 ***CO2***  
 ***Champagne***  
-***Hot Water***  
-***Cold Water***  
+***Sugar cane***  
+***Crushed Sugar cane***  
+***Sugar cane syrup***
 
 ## All better alcohol recepies:
 
 ### Whiskey:
-***Grain*** → ***smashed grain*** (Smash)  
+***Grain*** → ***Smashed grain*** (Smash)  
 ***Smashed grain*** + ***Hot Water*** → ***Mash*** (Mix the element, in liquids)  
-***Mash*** + ***Alcohol*** → ***Wash*** (Mix)  
+***Mash*** + ***Yeast*** → ***Wash*** (Mix)  
 ***Wash*** → ***Whiskey Gas*** (Heat it up)  
 ***Whiskey Gas*** → ***Whiskey*** (Cool it down)  
 
@@ -47,21 +48,21 @@ Right now to run it, you would need to do `git clone <sandboxels repositories gi
 ***Agave*** → ***Agave Core*** (Smash)  
 ***Agave Core*** → ***Roasted Agave*** (Burn)  
 ***Roasted Agave*** → ***Agave Juice*** (Smash)  
-***Agave Juice*** + ***Alcohol*** → ***Tequila***  
+***Agave Juice*** + ***Yeast*** → ***Tequila***  
 
 ### Champagne
 ***Champagne Grapes*** → ***Must*** (Smash)  
-***Must*** + ***Alcohol*** → ***Base Wine***  
+***Must*** + ***Yeast*** → ***Base Wine***  
 ***Base Wine*** + ***Wine*** → ***Cuvee***  
 ***Cuvee*** + ***Sugar*** → ***Sugary Cuvee***  
 ***Sugary Cuvee*** + ***CO2*** → ***Champagne***  
 
 ### Brazilian Rum
 ***Sugar Cane*** → ***Crushed Sugar Cane*** (smash)
-***Crushed sugar cane*** + ***Hot Water*** → ***Sugar Cane Syrup***
+***Crushed sugar cane*** + ***Hot Water*** → ***Sugar Cane Syrup*** (Water needs to be between 70 and 100 degrees) 
 ***Sugar cane syrup*** + ***Yeast*** → ***Brazilian Rum***
 
 ### Vodka
 ***Potato*** → ***Mashed Potato*** (Smash)  
-***Mashed Potato*** + ***Cold Water*** → ***Cold Potato***  
-***Cold Potato*** + ***Alcohol*** → ***Vodka***  
+***Mashed Potato*** + ***Cold Water*** → ***Cold Potato***  (Needs to be between 0 and 30 degrees)
+***Cold Potato*** + ***Yeast*** → ***Vodka***  
