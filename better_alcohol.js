@@ -56,7 +56,13 @@ elements.smashedGrain = {
   density: 1.5,
   category: "food",
   reactions: {
-    hotWater: { elem1: "mash", elem2: "mash", chance: 0.3 },
+    water: {
+      elem1: "mash",
+      elem2: "mash",
+      chance: 0.3,
+      tempMin: 70,
+      tempMax: 100,
+    },
   },
 };
 
@@ -87,8 +93,8 @@ elements.whiskeyGas = {
   state: "gas",
   density: 0.3,
   stateLow: "whiskey",
-  tempLow: 250,
-  temp: 251,
+  tempLow: 150,
+  temp: 151,
 };
 
 elements.whiskey = {
@@ -114,14 +120,35 @@ elements.frozenWhiskey = {
 };
 
 // Vodka
-
+elements.mashed_potato = {
+  reactions: {
+    water: {
+      elem1: "coldPotato",
+      elem2: "coldPotato",
+      tempMin: 0,
+      tempMax: 20,
+    },
+  },
+  color: ["#F7F6E4", "#F0ECD4", "#E4D38B"],
+  behavior: behaviors.STURDYPOWDER,
+  tempHigh: 400,
+  stateHigh: ["ash", "steam", null, null, null],
+  burn: 3,
+  burnTime: 300,
+  burnInto: ["ash", "steam", "smoke", "smoke", "smoke"],
+  category: "food",
+  state: "solid",
+  density: 675,
+  isFood: true,
+  hidden: true,
+};
 elements.coldPotato = {
   color: ["#d2c9b5", "#c7bfae", "#bbb4a6", "#b0aa9f", "#a49f97", "#99958f"],
   behavior: behaviors.POWDER,
   category: "food",
   temp: 5,
   reactions: {
-    alcohol: {
+    yeast: {
       elem1: "vodka",
       elem2: "vodka",
       chance: 0.7,
@@ -171,7 +198,7 @@ elements.agaveJuice = {
   category: "liquids",
   temp: 23,
   reactions: {
-    alcohol: {
+    yeast: {
       elem1: "tequila",
       elem2: "tequila",
       chance: 0.6,
@@ -254,7 +281,7 @@ elements.sugaryCuvee = {
   color: ["#f1d089", "#e0c67a", "#d1b56c", "#c39e5f", "#b78751"],
   behavior: behaviors.LIQUID,
   reactions: {
-    CO2: {
+    carbon_dioxide: {
       elem1: "champagne",
       elem2: "champagne",
       chance: 0.5,
@@ -267,14 +294,6 @@ elements.sugaryCuvee = {
   stain: -0.25,
 };
 
-elements.CO2 = {
-  color: ["#ffffff", "#e1e1e1", "#d0d0d0", "#c0c0c0", "#b0b0b0"],
-  behavior: behaviors.GAS,
-  category: "alcohol",
-  state: "gas",
-  density: 1100,
-};
-
 elements.champagne = {
   color: ["#f1e0b2", "#e4c97f", "#d8b76f", "#f8e6c3", "#ecd89b", "#c9a15b"],
   behavior: behaviors.LIQUID,
@@ -285,23 +304,63 @@ elements.champagne = {
   stain: -0.25,
 };
 
-// Water stuff
+// Brazilian rum
 
-elements.hotWater = {
-  behavior: behaviors.LIQUID,
-  density: 1,
-  color: ["#5d8c9e", "#6d98ab", "#7ea4b8", "#8faec4", "#a1b9d0", "#b3c3dc"],
-  category: "liquids",
-  temp: 80,
+elements.sugarCane = {
+  color: ["#d3e4b2", "#c2d89e", "#b0cb8c", "#a0bc79", "#8ea867"],
+  behavior: behaviors.WALL,
+  category: "life",
+  breakInto: ["crushedSugarCane", "sugar"],
 };
 
-elements.coldWater = {
-  color: ["#cfe7f5", "#bdddf0", "#abd3ea", "#99c9e5", "#87bfdf", "#76b5d9"],
-  behavior: behaviors.LIQUID,
-  category: "liquids",
-  temp: 10,
-  density: 1,
+elements.crushedSugarCane = {
+  color: ["#c4c88e", "#b3b97b", "#a3a96a", "#929958", "#818947"],
+  behavior: behaviors.POWDER,
+  category: "powders",
+  temp: 23,
   reactions: {
-    mashed_potato: { elem1: "coldPotato", elem2: "coldPotato", chance: 0.4 },
+    water: {
+      elem1: "sugarCaneSyrup",
+      elem2: "sugarCaneSyrup",
+      tempMin: 70,
+      tempMax: 100,
+    },
   },
+};
+
+elements.sugarCaneSyrup = {
+  color: ["#d4a153", "#c89042", "#b77f36", "#a56f2b", "#935f21"],
+  behavior: behaviors.LIQUID,
+  viscosity: 1000,
+  density: 1.4,
+  state: "liquid",
+  category: "liquids",
+  tempHigh: 120,
+  stateHigh: "burnt_sugar",
+  burn: 5,
+  burnTime: 200,
+  reactions: {
+    yeast: {
+      elem1: "brazilianRum",
+      elem2: "brazilianRum",
+    },
+  },
+};
+
+elements.brazilianRum = {
+  color: ["#f3e0a2", "#e7ce87", "#dcbf6d", "#cfa055", "#c18e45"],
+  behavior: behaviors.LIQUID,
+  viscosity: 2.23,
+  category: "alcohol",
+  state: "liquid",
+  density: 803,
+  stain: -0.25,
+};
+
+elements.cork = {
+  color: ["#a67c52", "#b08968", "#c19a6b", "#8b5e3c", "#7a4c32"],
+  behavior: behaviors.WALL,
+  category: "solids",
+  state: "solid",
+  density: 1140,
 };
