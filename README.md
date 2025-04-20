@@ -56,6 +56,11 @@ Right now to run it, you would need to do `git clone <sandboxels repositories gi
 ***Cuvee*** + ***Sugar*** → ***Sugary Cuvee***  
 ***Sugary Cuvee*** + ***CO2*** → ***Champagne***  
 
+### Brazilian Rum
+***Sugar Cane*** → ***Crushed Sugar Cane*** (smash)
+***Crushed sugar cane*** + ***Hot Water*** → ***Sugar Cane Syrup***
+***Sugar cane syrup*** + ***Yeast*** → ***Brazilian Rum***
+
 ### Vodka
 ***Potato*** → ***Mashed Potato*** (Smash)  
 ***Mashed Potato*** + ***Cold Water*** → ***Cold Potato***  
