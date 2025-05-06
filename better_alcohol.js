@@ -17,7 +17,40 @@ elements.wine = {
   state: "liquid",
   density: 803,
   stain: -0.25,
+  tick: function () {},
 };
+
+controlContainter = document.getElementById("categoryControls"); // HTMLCollection
+
+if (controlContainter) {
+  controls = controlContainter.children;
+
+  document.addEventListener("keydown", function (e) {
+    if (shiftDown) {
+      if (e.key >= "0" && e.key <= "9") {
+        e.preventDefault();
+        if (e.key - 1 >= 0) {
+          // Check if controls has exactly 10 children
+          if (controls.length >= 10) {
+            controls[9].click(); // 10th child (index 9)
+          }
+        } else {
+          cn = e.key - 1;
+          controls[cn].click(); // Click the child corresponding to the number pressed
+        }
+      }
+    }
+  });
+} else {
+  console.error("Element with ID 'categoryControls' not found.");
+}
+
+// keybinds["1"] = () => {
+//   // If there are child elements, click the first one
+//   if (document.getElementById("categoryControls").children.length > 0) {
+//     document.getElementById("categoryControls").children[0].click();
+//   }
+// };
 
 elements.alcohol = {
   color: "#fffcfc",
@@ -105,7 +138,11 @@ elements.whiskey = {
   stateHigh: "whiskeyGas",
   tempHigh: 150,
   stateLow: "frozenWhiskey",
+  state: "liquid",
   tempLow: -10,
+  density: 803,
+  viscosity: 2.23,
+  stain: -0.25,
 };
 
 elements.frozenWhiskey = {
@@ -161,6 +198,10 @@ elements.vodka = {
   behavior: behaviors.LIQUID,
   category: "alcohol",
   temp: 15,
+  density: 803,
+  viscosity: 2.23,
+  stain: -0.25,
+  state: "liquid",
 };
 
 // Tequila
@@ -211,6 +252,10 @@ elements.tequila = {
   behavior: behaviors.LIQUID,
   category: "alcohol",
   temp: 13,
+  density: 803,
+  viscosity: 2.23,
+  stain: -0.25,
+  state: "liquid",
 };
 
 // Champagne
@@ -334,11 +379,6 @@ elements.sugarCaneSyrup = {
   viscosity: 1000,
   density: 1.4,
   state: "liquid",
-  category: "liquids",
-  tempHigh: 120,
-  stateHigh: "burnt_sugar",
-  burn: 5,
-  burnTime: 200,
   reactions: {
     yeast: {
       elem1: "brazilianRum",
@@ -355,6 +395,12 @@ elements.brazilianRum = {
   state: "liquid",
   density: 803,
   stain: -0.25,
+  reactions: {
+    water: {
+      color1: ["#f4e994", "#e6db72", "#d5c956", "#c2b841", "#b1a837"],
+      elem2: null,
+    },
+  },
 };
 
 elements.cork = {
@@ -363,4 +409,448 @@ elements.cork = {
   category: "solids",
   state: "solid",
   density: 1140,
+};
+
+elements.lemon = {
+  color: ["#f9f871", "#f6f04c", "#f1e843", "#e6d933", "#d2c52b"],
+  behavior: behaviors.WALL,
+  category: "life",
+  breakInto: "lemonJuice",
+  category: "life",
+};
+
+elements.lemonJuice = {
+  color: ["#f7f8a6", "#f1f58b", "#e4ea70", "#d9dc5c", "#cbd046"],
+  behavior: behaviors.LIQUID,
+  viscosity: 2.23,
+  category: "liquids",
+  state: "liquid",
+  density: 9999,
+  stain: -0.25,
+  tempColorTransfer: true,
+  reactions: {
+    wine: {
+      color2: ["#e0a179", "#d3936b", "#c6865f", "#ba7a55", "#ae6d4a"],
+      chance: 0.5,
+    },
+    whiskey: {
+      color2: ["#f2c46e", "#e4b55c", "#d7a649", "#c8973a", "#b9852a"],
+      chance: 0.5,
+    },
+    vodka: {
+      color2: ["#e8f8d6", "#dff1c6", "#d3e9b4", "#c6dea1", "#bad38f"],
+      chance: 0.5,
+    },
+    brazilianRum: {
+      color2: ["#f4e994", "#e6db72", "#d5c956", "#c2b841", "#b1a837"],
+      chance: 0.5,
+    },
+    tequila: {
+      color2: ["#f4e28a", "#e8d471", "#dbc65d", "#cfb74a", "#c1a838"],
+      chance: 0.5,
+    },
+    champagne: {
+      color2: ["#f8f3a1", "#ede88f", "#e1dc7d", "#d5d06b", "#c8c25a"],
+      chance: 0.5,
+    },
+  },
+};
+
+elements.lava = {
+  color: ["#ff6f00", "#ff8c00", "#ff4500", "#e63900", "#cc2900", "#b22222"],
+  behavior: behaviors.MOLTEN,
+  category: "liquids",
+  temp: 1200,
+  tempLow: 700, // Our value. There is also tempHigh
+  stateLow:
+    "rock" /* This is the state when the temprature is to low. There is also
+    tempHigh and stateHigh */,
+};
+
+selDrag = 0;
+elements.selective_drag = {
+  colors: ["#5EEAD4", "#3BC9DB", "#2A93D5", "#3A5BA0", "#473C90", "#6247AA"],
+  category: "tools",
+  tool: function (pixel) {
+    if (dragStart === null) {
+      dragStart = pixelTicks; // Mark the drag start time
+      draggingPixels = []; // Start a fresh list of dragged pixels
+    }
+    if (
+      pixelTicks === dragStart &&
+      !pixel.drag &&
+      (elements[pixel.element].movable || shiftDown)
+    ) {
+      if (pixel.element === selDrag) {
+        pixel.drag = true; // Mark this pixel as being dragged
+        draggingPixels.push(pixel); // Add it to the dragging list
+      }
+    }
+  },
+  onSelect: function () {
+    var answer1 = prompt(
+      "Please input what element to drag.",
+      selDrag || undefined
+    );
+    if (!answer1) {
+      return;
+    }
+    selDrag = answer1;
+  },
+  onMouseUp: function () {
+    if (!draggingPixels) {
+      return;
+    } // No pixels to release
+    for (var i = 0; i < draggingPixels.length; i++) {
+      delete draggingPixels[i].drag; // Remove drag flag from each pixel
+    }
+    dragStart = null; // End drag session
+    draggingPixels = null;
+  },
+  onUnselect: function () {
+    elements.drag.onMouseUp(); // Calls onMouseUp to clean up
+  },
+  perTick: function () {
+    if (!draggingPixels) {
+      return;
+    }
+    for (var j = 0; j < (shiftDown ? 3 : 1); j++) {
+      for (var i = 0; i < draggingPixels.length; i++) {
+        var pixel = draggingPixels[i];
+        if (pixel.del) {
+          continue;
+        }
+        const x = pixel.x;
+        const y = pixel.y;
+        const [mX, mY] = [mousePos.x, mousePos.y];
+        const empty = checkForEmptyPixels(x, y);
+        let bestVal = Math.sqrt(Math.pow(mX - x, 2) + Math.pow(mY - y, 2));
+        let best = null;
+        for (const pixelPair of empty) {
+          const x_ = x + pixelPair[0];
+          const y_ = y + pixelPair[1];
+          const c = Math.sqrt(Math.pow(mX - x_, 2) + Math.pow(mY - y_, 2));
+          if (c < bestVal) {
+            bestVal = c;
+            best = pixelPair;
+          }
+        }
+        if (best) {
+          tryMove(pixel, x + best[0], y + best[1], undefined, true);
+        }
+      }
+    }
+  },
+};
+
+elements.exclusive_drag = {
+  colors: ["#FBBF24", "#F97316", "#EF4444", "#DC2626", "#A21CAF", "#7C3AED"],
+  category: "tools",
+  tool: function (pixel) {
+    if (dragStart === null) {
+      dragStart = pixelTicks; // Mark the drag start time
+      draggingPixels = []; // Start a fresh list of dragged pixels
+    }
+    if (
+      pixelTicks === dragStart &&
+      !pixel.drag &&
+      (elements[pixel.element].movable || shiftDown)
+    ) {
+      if (pixel.element !== selDrag) {
+        pixel.drag = true; // Mark this pixel as being dragged
+        draggingPixels.push(pixel); // Add it to the dragging list
+      }
+    }
+  },
+  onSelect: function () {
+    var answer1 = prompt(
+      "Please input what element to drag.",
+      selDrag || undefined
+    );
+    if (!answer1) {
+      return;
+    }
+    selDrag = answer1;
+  },
+  onMouseUp: function () {
+    if (!draggingPixels) {
+      return;
+    } // No pixels to release
+    for (var i = 0; i < draggingPixels.length; i++) {
+      delete draggingPixels[i].drag; // Remove drag flag from each pixel
+    }
+    dragStart = null; // End drag session
+    draggingPixels = null;
+  },
+  onUnselect: function () {
+    elements.drag.onMouseUp(); // Calls onMouseUp to clean up
+  },
+  perTick: function () {
+    if (!draggingPixels) {
+      return;
+    }
+    for (var j = 0; j < (shiftDown ? 3 : 1); j++) {
+      for (var i = 0; i < draggingPixels.length; i++) {
+        var pixel = draggingPixels[i];
+        if (pixel.del) {
+          continue;
+        }
+        const x = pixel.x;
+        const y = pixel.y;
+        const [mX, mY] = [mousePos.x, mousePos.y];
+        const empty = checkForEmptyPixels(x, y);
+        let bestVal = Math.sqrt(Math.pow(mX - x, 2) + Math.pow(mY - y, 2));
+        let best = null;
+        for (const pixelPair of empty) {
+          const x_ = x + pixelPair[0];
+          const y_ = y + pixelPair[1];
+          const c = Math.sqrt(Math.pow(mX - x_, 2) + Math.pow(mY - y_, 2));
+          if (c < bestVal) {
+            bestVal = c;
+            best = pixelPair;
+          }
+        }
+        if (best) {
+          tryMove(pixel, x + best[0], y + best[1], undefined, true);
+        }
+      }
+    }
+  },
+};
+
+elements.parasite = {
+  color: "#696969",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "M2|SW:sand AND M2|M2",
+    "M2|LB:sand,sand,sand,sand,sand,sand,sand,sand,parasite|M2",
+    "M1|M1|M1",
+  ],
+};
+
+elements.grinderSet = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|CR:grinder|XX|CR:grinder|XX|CR:grinder|XX|CR:grinder|DL|CR:grinder|XX|CR:grinder|XX|CR:grinder|XX|CR:grinder|XX|",
+  ],
+};
+
+elements.mixerSet = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|CR:mixer|XX|CR:mixer|XX|CR:mixer|XX|CR:mixer|DL|CR:mixer|XX|CR:mixer|XX|CR:mixer|XX|CR:mixer|XX|",
+  ],
+};
+
+elements.wineGlass = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|XX|XX",
+    "CR:glass|XX|XX|XX|XX|XX|XX|XX|CR:glass",
+    "CR:glass|XX|XX|XX|XX|XX|XX|XX|CR:glass",
+    "CR:glass|XX|XX|XX|XX|XX|XX|XX|CR:glass",
+    "XX|CR:glass|XX|XX|XX|XX|XX|CR:glass|XX",
+    "XX|XX|CR:glass|XX|XX|XX|CR:glass|XX|XX",
+    "XX|XX|XX|CR:glass|DL|CR:glass|XX|XX|XX",
+    "XX|XX|XX|XX|CR:glass|XX|XX|XX|XX",
+    "XX|XX|XX|XX|CR:glass|XX|XX|XX|XX",
+    "XX|XX|XX|XX|CR:glass|XX|XX|XX|XX",
+    "XX|XX|XX|XX|CR:glass|XX|XX|XX|XX",
+    "XX|XX|XX|XX|CR:glass|XX|XX|XX|XX",
+    "XX|XX|XX|CR:glass|CR:glass|CR:glass|XX|XX|XX",
+    "XX|XX|CR:glass|CR:glass|CR:glass|CR:glass|CR:glass|XX|XX",
+  ],
+  category: "bottles",
+  state: "solid",
+};
+
+elements.wineBottle = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 AND CC:#406e47|CR:glass AND CC:#406e47 AND CC:#406e47|XX|CR:glass AND CC:#406e47 AND CC:#406e47|CR:glass AND CC:#406e47 AND CC:#406e47|XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|XX|",
+    "XX|XX|XX|CR:glass AND CC:#406e47|XX|CR:glass AND CC:#406e47|XX|XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|XX|",
+    "XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|",
+    "XX|CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|XX|",
+    "CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|DL|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47|",
+    "CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|CR:glass AND CC:#406e47|",
+  ],
+  category: "bottles",
+  state: "solid",
+};
+
+elements.bottleCork = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: ["CR:cork|CR:cork|CR:cork", "XX|CH:cork|XX", "XX|XX|XX"],
+  category: "bottles",
+  state: "solid",
+};
+
+elements.whiskeyBottle = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|XX|",
+    "XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |XX|CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|XX|",
+    "XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|",
+    "CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|DL|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |",
+    "CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#907362 |CR:glass AND CC:#907362 |",
+  ],
+  category: "bottles",
+  state: "solid",
+};
+elements.rumAndTequilaBottle = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|",
+    "XX|XX|CR:glass AND CC:#FFECAD |XX|CR:glass AND CC:#FFECAD |XX|XX",
+    "XX|CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |XX|CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |XX",
+    "XX|CR:glass AND CC:#FFECAD |XX|XX|XX|CR:glass AND CC:#FFECAD |XX",
+    "CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |XX|XX|XX|CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|DL|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |XX|XX|XX|XX|XX|CR:glass AND CC:#FFECAD ",
+    "CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD |CR:glass AND CC:#FFECAD ",
+  ],
+  category: "bottles",
+  state: "solid",
+};
+
+elements.champagneBottle = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  category: "bottles",
+  state: "solid",
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|XX|",
+    "XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|",
+    "XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|",
+    "XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|",
+    "XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|",
+    "XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|XX|",
+    "XX|XX|CR:glass AND CC:#406e47 |XX|XX|DL|XX|XX|CR:glass AND CC:#406e47 |XX|XX|",
+    "XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|",
+    "XX|CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |XX|",
+    "CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |",
+    "CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|XX|XX|XX|XX|XX|XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |",
+    "XX|CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |XX|",
+    "XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |CR:glass AND CC:#406e47 |XX|",
+  ],
+};
+
+elements.vodkaBottle = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "XX|XX|XX|XX|XX|XX|XX|",
+    "XX|XX|CR:glass AND CC:#dcd4c4 |XX|CR:glass AND CC:#dcd4c4 |XX|XX",
+    "XX|CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |XX|CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |XX",
+    "XX|CR:glass AND CC:#dcd4c4 |XX|XX|XX|CR:glass AND CC:#dcd4c4 |XX",
+    "CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |XX|XX|XX|CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|DL|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |XX|XX|XX|XX|XX|CR:glass AND CC:#dcd4c4 ",
+    "CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 |CR:glass AND CC:#dcd4c4 ",
+  ],
+  category: "bottles",
+  state: "solid",
+};
+
+elements.champagneCork = {
+  color: "#000000",
+  behaviorOn: behaviors.WALL,
+  behavior: [
+    "CR:cork|CR:cork|CR:cork",
+    "CR:cork|CH:cork|CR:cork",
+    "XX|CR:cork|XX",
+    "XX|XX|XX",
+  ],
+  category: "bottles",
+  state: "solid",
 };
